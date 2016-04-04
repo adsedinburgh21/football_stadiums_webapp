@@ -1,0 +1,39 @@
+#map {
+  height: 600px;
+  width: 800px;
+  border-radius: 15px;
+}
+
+html { 
+  background: url(http://9walls.in/wp-content/uploads/2014/09/santiago-bernabeu-stadium-high-definition-desktop-monitor-mobile-wallpaper-backgrounds-free-images-download.jpg) no-repeat center center fixed; 
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+}
+
+body{
+  width: 800px;
+  margin: 0 auto;
+}
+
+h1{
+  margin: 0 auto;
+  color: #fff;
+}
+
+
+#text{
+  width: 600px;
+  margin: 0 auto;
+  color: #fff;
+}
+
+
+#shadowBackground{
+  width: 100%;
+  display: block;
+  margin: 0 auto;
+  background-color: rgba( 0, 0, 0, 0.5 );
+  padding: 30px 30px;
+}
