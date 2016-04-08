@@ -7,17 +7,11 @@ window.onload = function () {
             var jsonString = request.responseText;
             var stadiums = JSON.parse(jsonString);
             main(stadiums);
-            populateChartLargestCapacities(stadiums, 20, "Capacity");
-            populateChartSmallestCapacities(stadiums, 20, "Capacity");
 
-            //// only here for testing - need  to make actual TDD for this.
-            // selectFromHighestCapacity( stadiums, 20 );
-            // selectFromLowestCapacity( stadiums, 20 );
-            // arrayOfLargestCapacities( stadiums, 20);
-            // arrayOfSmallestCapacities( stadiums, 20);
-            // arrayOfTeamsByLargestCapacities( stadiums, 20);
-            // arrayOfTeamsBySmallestCapacities( stadiums, 20);
-            // createChartDataLargest(stadiums, 20);
+
+            ///// these should prob be getting called in the 'main' function:
+            populateChart1(stadiums, 20, "Capacity" , false, "team")
+            populateChart2(stadiums, 20, "Capacity" , true, "team")
 
 
 
@@ -108,65 +102,29 @@ var orderByCapacity = function( stadiums ){
     return ordered;
  };
 
-var selectFromHighestCapacity = function( stadiums, number){
+var selectFromCapacity = function( stadiums, number, reverse){
     var data = orderByCapacity(stadiums);
-    var selectedTeams = data.slice( 0, number);
+    var selectedTeams = null;
+    if(reverse){
+        selectedTeams = data.reverse().slice( 0, number);
+    }else{
+        selectedTeams = data.slice( 0, number);
+    }
+   
     // console.log( "largest stadiums", selectedTeams );
     return selectedTeams;
 };
 
-var selectFromLowestCapacity = function( stadiums, number){
-    var data = orderByCapacity(stadiums);
-    var selectedTeams = data.reverse().slice( 0, number);
-    // console.log( "lowest stadiums", selectedTeams );
-    return selectedTeams;
-};
-
-var arrayOfLargestCapacities= function( stadiums, number ){
-    var selection = selectFromHighestCapacity( stadiums, number);
-    var capacities = selection.map(function(a){ return a.capacity});
+var arrayOf= function( stadiums, number, reverse, type ){
+    var selection = selectFromCapacity( stadiums, number, reverse);
+    var capacities = selection.map(function(a){ return a[type]});
     console.log("largest capacities: ", capacities);
     return capacities;
-}
+};
 
-var arrayOfSmallestCapacities = function(stadiums, number){
-    var selection = selectFromLowestCapacity(stadiums, number);
-    var capacities = selection.map(function(a){ return a.capacity});
-    console.log("smallest capacities: ", capacities);
-    return capacities;
-}
-
-var arrayOfTeamsByLargestCapacities= function( stadiums, number ){
-    var selection = selectFromHighestCapacity( stadiums, number);
-    var capacities = selection.map(function(a){ return a.team});
-    console.log("largest capacity teams: ", capacities);
-    return capacities;
-}
-
-var arrayOfTeamsBySmallestCapacities = function(stadiums, number){
-    var selection = selectFromLowestCapacity(stadiums, number);
-    var capacities = selection.map(function(a){ return a.team});
-    console.log("smallest capacity teams: ", capacities);
-    return capacities;
-}
-
-var arrayOfStadiumNamesByLargestCapacities= function( stadiums, number ){
-    var selection = selectFromHighestCapacity( stadiums, number);
-    var capacities = selection.map(function(a){ return a.name});
-    console.log("largest capacity teams: ", capacities);
-    return capacities;
-}
-
-var arrayOfStadiumNamesBySmallestCapacities = function(stadiums, number){
-    var selection = selectFromLowestCapacity(stadiums, number);
-    var capacities = selection.map(function(a){ return a.name});
-    console.log("smallest capacity teams: ", capacities);
-    return capacities;
-}
-
-var createChartDataLargest = function(stadiums, number){
-    var array1 = arrayOfStadiumNamesByLargestCapacities(stadiums, number);
-    var array2 = arrayOfLargestCapacities(stadiums, number);
+var createChartData = function(stadiums, number, reverse){
+    var array1 = arrayOf( stadiums, number, reverse, "name")
+    var array2 = arrayOf(stadiums, number, reverse, "capacity");
     var result = [];
     for( i=0; i< array1.length; i++){
         result.push( [array1[i], array2[i]] )
@@ -174,42 +132,33 @@ var createChartDataLargest = function(stadiums, number){
     console.log("data ready for graph - largest", result)
     console.log("data ready for graph - largest", result[0])
     return result;
-}
+};
 //// COMPLETED ABOVE - for series entry in chart need-  data: [ ['team name', capacity], ['team name', capacity], ['team name', capacity]  ]
 //// The name part is on the hover display, not xAxis.
 
-var createChartDataSmallest = function(stadiums, number){
-    var array1 = arrayOfStadiumNamesBySmallestCapacities(stadiums, number);
-    var array2 = arrayOfSmallestCapacities(stadiums, number);
-    var result = [];
-    for( i=0; i< array1.length; i++){
-        result.push( [array1[i], array2[i]] )
-    };
-    // console.log("data ready for graph - Smallest", result)
-    // console.log("data ready for graph - Smallest", result[0])
-    return result;
-}
 
-
-var populateChartLargestCapacities = function( stadiums, number, seriesName){
+var populateChart1 = function( stadiums, number, seriesName, reverse, category){
     var data = new ChartData();
     var containers = new ChartContainers();
     var type = new ChartTypes();
     var title = "The " + number + " Largest Capacity Stadiums in the UK";
-    var largestData = createChartDataLargest( stadiums, number);
-    var nameOfSeries = seriesName;
-    var categories = arrayOfTeamsByLargestCapacities(stadiums, number);
-    new Chart( title, type.column, containers.highestCapacity, nameOfSeries, largestData, data.xAxisAngled( categories ), data.yAxis)
-}
-//// POSSIBLE ADDITION: could make an input so user could select how many teams to show on chart.
+    var chartData = createChartData( stadiums, number, reverse);
+    var categories = arrayOf(stadiums, number, reverse, category);
+    new Chart( title, type.column, containers.highestCapacity, seriesName, chartData, data.xAxisAngled( categories ), data.yAxis);
+};
+////// need to refactor above so that can add in title, type of graph, type of container, xAxis, yAxis. Then it will be fully customisable - could reuse in different ways by calling populate chart, wouldnt need to have populateChart1, populateChart2, etc.   Will be alot of stuff being passed to populateChart so could pass an object eg, populateChart( options ) then do options.thing or options[thing]
 
-var populateChartSmallestCapacities = function( stadiums, number, seriesName){
+var populateChart2 = function( stadiums, number, seriesName, reverse, category){
     var data = new ChartData();
     var containers = new ChartContainers();
     var type = new ChartTypes();
     var title = "The " + number + " Smallest Capacity Stadiums in the UK";
-    var smallestData = createChartDataSmallest( stadiums, number);
-    var nameOfSeries = seriesName;
-    var categories = arrayOfTeamsBySmallestCapacities(stadiums, number);
-    new Chart( title, type.column, containers.lowestCapacity, nameOfSeries, smallestData, data.xAxisAngled( categories ), data.yAxis)
-}
+    var chartData = createChartData( stadiums, number, reverse);
+    var categories = arrayOf(stadiums, number, reverse, category);
+    new Chart( title, type.column, containers.lowestCapacity, seriesName, chartData, data.xAxisAngled( categories ), data.yAxis);
+};
+
+
+
+//// POSSIBLE ADDITION: could make an input so user could select how many teams to show on chart.
+
