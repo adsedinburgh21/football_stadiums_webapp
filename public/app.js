@@ -61,7 +61,6 @@ var populateDropdown = function( stadiums ){
         // var index = event.target
         var selectedOption = this.options[this.selectedIndex];
         var index = selectedOption.value;
-        // console.log(this.options)  what is this.options ?? eg, where does it come from?? It makes my code work but I copied it from the country lab we did in class but I dont really understand it.
         var selectedTeam = stadiums[ index ];
         updateDisplay( selectedTeam );
         updateMap( selectedTeam );
